@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PMOC Gestão</title>
+  <meta name="description" content="Gestão de PMOC para técnicos: preencha a visita, gere o PDF e compartilhe.">
+  <meta name="theme-color" content="#0b5c6b">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b5c6b'/%3E%3Cpath d='M16 6v20M7.3 11l17.4 10M7.3 21l17.4-10' stroke='white' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" id="btnHome" type="button" aria-label="Ir para Meus PMOCs">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M16 6v20M7.3 11l17.4 10M7.3 21l17.4-10" /></svg>
+      </span>
+      <span class="brand-text">PMOC <small>Gestão de manutenção</small></span>
+    </button>
+    <span class="save-state" id="saveState" aria-live="polite"></span>
+  </header>
+
+  <!-- ============ LISTA ============ -->
+  <main id="viewLista" class="view">
+    <section class="hero">
+      <div>
+        <h1>Meus PMOCs</h1>
+        <p class="muted">Os dados ficam salvos neste aparelho. Use o backup para levar para outro.</p>
+      </div>
+      <button class="btn primary" id="btnNovo" type="button">+ Novo PMOC</button>
+    </section>
+
+    <div id="listaVazia" class="empty" hidden>
+      <p><strong>Nenhum PMOC ainda.</strong></p>
+      <p class="muted">Crie o primeiro: preencha a unidade, os equipamentos e o checklist da visita. No final, gere o PDF e compartilhe.</p>
+    </div>
+
+    <ul id="lista" class="cards"></ul>
+
+    <section class="backup">
+      <h2>Backup</h2>
+      <div class="row-btns">
+        <button class="btn" id="btnExportar" type="button">Exportar backup (.json)</button>
+        <label class="btn">Importar backup<input type="file" id="inpImportar" accept="application/json,.json" hidden></label>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ EDITOR ============ -->
+  <main id="viewEditor" class="view" hidden>
+    <nav class="steps" id="steps" aria-label="Etapas">
+      <button type="button" data-step="unidade" class="active">1 · Unidade</button>
+      <button type="button" data-step="tecnico">2 · Técnico</button>
+      <button type="button" data-step="equip">3 · Ambientes</button>
+      <button type="button" data-step="checklist">4 · Checklist</button>
+      <button type="button" data-step="medicoes">5 · Medições</button>
+      <button type="button" data-step="final">6 · Finalizar</button>
+    </nav>
+
+    <!-- 1. Unidade -->
+    <section class="step" data-panel="unidade">
+      <div class="card">
+        <h2>Identificação do ambiente</h2>
+        <div class="grid">
+          <label class="col-2">Unidade / local<input data-k="unidade.nome" placeholder="Ex.: APS Bom Jardim" required></label>
+          <label class="col-2">Endereço<input data-k="unidade.endereco"></label>
+          <label>Nº<input data-k="unidade.numero" inputmode="numeric"></label>
+          <label>Complemento<input data-k="unidade.complemento"></label>
+          <label>Bairro<input data-k="unidade.bairro"></label>
+          <label>Cidade<input data-k="unidade.cidade"></label>
+          <label>UF<input data-k="unidade.uf" maxlength="2" class="upper"></label>
+          <label>CEP<input data-k="unidade.cep" inputmode="numeric" placeholder="00000-000"></label>
+          <label>Telefone<input data-k="unidade.telefone" type="tel"></label>
+          <label>E-mail<input data-k="unidade.email" type="email"></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Proprietário, locatário ou preposto</h2>
+        <div class="grid">
+          <label class="col-2">Nome / razão social<input data-k="proprietario.nome"></label>
+          <label>CNPJ / CPF<input data-k="proprietario.documento" inputmode="numeric"></label>
+          <label class="col-2">Endereço completo<input data-k="proprietario.endereco"></label>
+          <label>Cidade / UF<input data-k="proprietario.cidade"></label>
+        </div>
+      </div>
+      <div class="step-nav"><span></span><button class="btn primary" data-go="tecnico" type="button">Próximo →</button></div>
+    </section>
+
+    <!-- 2. Técnico -->
+    <section class="step" data-panel="tecnico" hidden>
+      <div class="card">
+        <h2>Responsável técnico</h2>
+        <div class="grid">
+          <label class="col-2">Nome<input data-k="tecnico.nome"></label>
+          <label>CPF<input data-k="tecnico.cpf" inputmode="numeric"></label>
+          <label>Registro (CREA/CFT)<input data-k="tecnico.registro"></label>
+          <label>Nº da ART/TRT<input data-k="tecnico.art"></label>
+          <label>Validade da ART/TRT<input data-k="tecnico.artValidade" type="date"></label>
+          <label class="col-2">Empresa<input data-k="tecnico.empresa"></label>
+          <label>Telefone<input data-k="tecnico.telefone" type="tel"></label>
+          <label>E-mail<input data-k="tecnico.email" type="email"></label>
+        </div>
+        <p class="alert" id="alertaArt" hidden></p>
+      </div>
+      <div class="card">
+        <h2>Dados da visita</h2>
+        <div class="grid">
+          <label>Data da visita<input data-k="visita.data" type="date"></label>
+          <label>Tipo de manutenção
+            <select data-k="visita.tipo">
+              <option value="M">Mensal</option>
+              <option value="T">Trimestral</option>
+              <option value="S">Semestral</option>
+              <option value="A">Anual</option>
+            </select>
+          </label>
+          <label>Início<input data-k="visita.inicio" type="time"></label>
+          <label>Término<input data-k="visita.fim" type="time"></label>
+        </div>
+        <p class="hint">O tipo define os itens do checklist: a trimestral inclui os mensais, a semestral inclui mensais e trimestrais, e assim por diante.</p>
+      </div>
+      <div class="step-nav"><button class="btn" data-go="unidade" type="button">← Voltar</button><button class="btn primary" data-go="equip" type="button">Próximo →</button></div>
+    </section>
+
+    <!-- 3. Ambientes e equipamentos -->
+    <section class="step" data-panel="equip" hidden>
+      <div class="card">
+        <div class="card-head"><h2>Ambientes climatizados</h2><button class="btn small" id="addAmbiente" type="button">+ Ambiente</button></div>
+        <div id="ambientes" class="items"></div>
+        <p class="totais" id="totaisAmb"></p>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Inventário de equipamentos</h2><button class="btn small" id="addEquip" type="button">+ Equipamento</button></div>
+        <div id="equipamentos" class="items"></div>
+      </div>
+      <div class="step-nav"><button class="btn" data-go="tecnico" type="button">← Voltar</button><button class="btn primary" data-go="checklist" type="button">Próximo →</button></div>
+    </section>
+
+    <!-- 4. Checklist -->
+    <section class="step" data-panel="checklist" hidden>
+      <div class="card sticky-sum">
+        <div class="card-head">
+          <h2>Checklist <span class="badge" id="tipoBadge"></span></h2>
+          <span class="progress-text" id="progressText"></span>
+        </div>
+        <div class="progress"><span id="progressBar"></span></div>
+      </div>
+      <div id="checklist"></div>
+      <div class="step-nav"><button class="btn" data-go="equip" type="button">← Voltar</button><button class="btn primary" data-go="medicoes" type="button">Próximo →</button></div>
+    </section>
+
+    <!-- 5. Medições -->
+    <section class="step" data-panel="medicoes" hidden>
+      <div class="card">
+        <h2>Medições por equipamento</h2>
+        <p class="hint">Cadastre os equipamentos na etapa 3 para medir cada um. O ΔT (retorno − insuflamento) é calculado na hora.</p>
+        <div id="medicoes" class="items"></div>
+      </div>
+      <div class="step-nav"><button class="btn" data-go="checklist" type="button">← Voltar</button><button class="btn primary" data-go="final" type="button">Próximo →</button></div>
+    </section>
+
+    <!-- 6. Finalizar -->
+    <section class="step" data-panel="final" hidden>
+      <div class="card">
+        <h2>Observações da visita</h2>
+        <textarea data-k="observacoes" rows="4" placeholder="Pendências, peças a trocar, recomendações ao cliente…"></textarea>
+      </div>
+      <div class="card">
+        <h2>Recomendações em caso de falha ou emergência</h2>
+        <textarea data-k="emergencia" rows="7"></textarea>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Assinatura do técnico</h2><button class="btn small" id="limparAss" type="button">Limpar</button></div>
+        <canvas id="assinatura" class="signature" aria-label="Área de assinatura"></canvas>
+        <p class="hint">Assine com o dedo ou o mouse.</p>
+      </div>
+      <div class="card actions-card">
+        <h2>Relatório</h2>
+        <ul class="pendencias" id="pendencias"></ul>
+        <div class="row-btns">
+          <button class="btn primary" id="btnPdf" type="button">Baixar PDF</button>
+          <button class="btn accent" id="btnShare" type="button">Compartilhar</button>
+        </div>
+        <div class="row-btns share-row">
+          <button class="btn whatsapp" id="btnWhats" type="button">WhatsApp</button>
+          <button class="btn" id="btnEmail" type="button">E-mail</button>
+        </div>
+        <p class="hint" id="shareHint"></p>
+      </div>
+      <div class="step-nav"><button class="btn" data-go="medicoes" type="button">← Voltar</button><button class="btn" id="btnNovaVisita" type="button">Nova visita desta unidade</button></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/pdf.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
