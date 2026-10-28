@@ -175,7 +175,6 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); o
 .reg .meta { font-size: .84rem; color: var(--muted); }
 .reg .row-btns .btn { flex: 0 1 auto; }
 .empty { text-align: center; padding: 32px 16px; border: 1px dashed var(--border); border-radius: var(--radius); margin-bottom: 24px; }
-.backup h2 { margin-bottom: 10px; font-size: .95rem; color: var(--muted); }
 
 /* ---------- steps ---------- */
 .steps {

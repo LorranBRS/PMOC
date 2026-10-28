@@ -13,7 +13,7 @@ Site para o técnico preencher o **PMOC (Plano de Manutenção, Operação e Con
 5. **Medições:** tensão, corrente, temperaturas e pressões por equipamento.
 6. **Finalizar:** observações, recomendações de emergência, assinatura, PDF e compartilhamento.
 
-- Os dados ficam salvos **no próprio aparelho** (navegador). Use **Exportar backup** para levar para outro aparelho.
+- Os dados ficam salvos **no próprio aparelho** (navegador).
 - **Nova visita** reaproveita unidade, técnico e equipamentos e zera o checklist.
 - No celular, **Compartilhar** abre a lista de apps (WhatsApp, Gmail, Drive…) já com o PDF anexado. No computador, o PDF é baixado para ser anexado manualmente.
 

@@ -587,37 +587,5 @@
   $('#btnNovaVisita').addEventListener('click', () => novaVisita(atual));
   $('#btnHome').addEventListener('click', mostrarLista);
 
-  // ---------- backup ----------
-  $('#btnExportar').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify({ app: 'pmoc', versao: 1, registros }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `pmoc-backup-${hoje()}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  });
-
-  $('#inpImportar').addEventListener('change', async e => {
-    const f = e.target.files[0];
-    e.target.value = '';
-    if (!f) return;
-    try {
-      const dados = JSON.parse(await f.text());
-      const lista = Array.isArray(dados) ? dados : dados.registros;
-      if (!Array.isArray(lista)) throw new Error('formato');
-      let novos = 0;
-      lista.forEach(r => {
-        if (!r || !r.id) return;
-        const i = registros.findIndex(x => x.id === r.id);
-        if (i >= 0) registros[i] = r; else { registros.push(r); novos++; }
-      });
-      persistir();
-      renderLista();
-      toast(`Backup importado: ${lista.length} registro(s), ${novos} novo(s).`);
-    } catch (err) {
-      toast('Arquivo inválido. Use um backup exportado por este site.');
-    }
-  });
-
   mostrarLista();
 })();
